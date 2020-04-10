@@ -22,11 +22,13 @@ import {
     Switch,
     Tooltip,
     Pagination,
-    Dialog
+    Dialog,
+    MessageBox
   } from 'element-ui'
 import { Message } from 'element-ui'
 
 Vue.prototype.$message = Message
+Vue.prototype.$confirm = MessageBox.confirm
 Vue.use(Button)
 Vue.use(Form)
 Vue.use(FormItem)
