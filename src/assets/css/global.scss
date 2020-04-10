@@ -1,0 +1,30 @@
+/* 全局样式 */
+html, body, app {
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+
+    // 设置 1rem = 10px
+    font-size: 10px;
+}
+
+body {
+    font-size: 1.6rem;    /*设置默认字体大小16px*/
+}
+
+.el-breadcrumb{
+    margin-bottom: 1.5rem;
+    font-size: 1.2rem;
+}
+
+.el-table {
+    margin-top: 1.5rem;
+    font-size: 1.2rem;
+}
+
+.el-pagination {
+    margin-top: 1.5rem;
+}
