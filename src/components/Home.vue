@@ -14,11 +14,13 @@
       <el-aside :width="isCollapse ? '6.4rem' : '20rem'">
         <div class="toggle-button" @click="toggleCollapse">|||</div>
         <el-menu background-color="#333744" text-color="#fff" active-text-color="#409EFF" :unique-opened="true"	:collapse='isCollapse' :collapse-transition='false' :default-active='$route.path' router>
+          <!-- 一级菜单 -->
           <el-submenu :index="item.id + ''" v-for="item in menuList" :key="item.id">
             <template slot="title">
               <i class="el-icon-location"></i>
               <span>{{item.authName}}</span>
             </template>
+            <!-- 二级菜单 -->
             <el-menu-item :index="'/' + subItem.path + ''" v-for="subItem in item.children" :key="subItem.id">
               <template slot="title">
                 <i class="el-icon-menu"></i>
@@ -48,16 +50,19 @@ export default {
     this.getMenuList();
   },
   methods: {
+    //登出
     logout() {
       window.sessionStorage.clear();
       this.$router.push("/login");
     },
+    // 控制菜单显示隐藏
     toggleCollapse() {
         this.isCollapse = !this.isCollapse;
     },
+    //获取餐单列表
     getMenuList() {
         this.$http.get('menus').then((res) => {
-            // console.log(res.data)
+            console.log(res.data)
             if(res.data.meta.status !== 200) return this.$message.error(res.data.meta.msg)
             this.menuList = res.data.data
             // console.log(this.menuList)
