@@ -75,7 +75,7 @@
               size="mini"
               type="warning"
               icon="el-icon-setting"
-              @click="showAuthoretyDialog"
+              @click="showAuthoretyDialog(scope.row)"
             >分配权限</el-button>
           </template>
         </el-table-column>
@@ -87,11 +87,21 @@
       title="分配权限"
       :visible.sync="setAuthorityDialogVisible"
       width="50%"
+      @close="authorityDialogClosed"
     >
-      <span>这是一段信息</span>
+      <!-- 树形控件 -->
+      <el-tree
+        default-expand-all
+        ref="treeRef"
+        node-key="id"
+        show-checkbox
+        :default-checked-keys="defKeys"
+        :data="allAuthorityListL"
+        :props="treeProps"
+      ></el-tree>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+        <el-button @click="setAuthorityDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="setAuthority">确 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -106,7 +116,16 @@ export default {
       //控制分配权限对话框显示隐藏
       setAuthorityDialogVisible: false,
       //保存所有权限数据
-      allAuthorityListL: []
+      allAuthorityListL: [],
+      //树形控件 属性绑定对象
+      treeProps: {
+        label: "authName",
+        children: "children"
+      },
+      //默认选中的节点的
+      defKeys: [],
+      // 点的的角色 id
+      roleid: ""
     };
   },
   created() {
@@ -152,16 +171,56 @@ export default {
         });
     },
     // 分配权限
-    showAuthoretyDialog() {
+    showAuthoretyDialog(role) {
       //获取所有权限的数据
-      this.$http.get('rights/tree').then((res) => {
-          if(res.data.meta.status !== 200){
-              return this.$message.error('获取权限数据失败')
+      this.$http.get("rights/tree").then(res => {
+        if (res.data.meta.status !== 200) {
+          return this.$message.error("获取权限数据失败");
+        }
+        this.allAuthorityListL = res.data.data;
+        this.roleid = role.id;
+        // 递归获取三级节点的 id
+        // debugger
+        this.getLeafKeys(role, this.defKeys);
+
+        this.setAuthorityDialogVisible = true;
+      });
+    },
+    // 通过递归的形式，获取权限下所有三级权限的 id，并保存到defKeys数组中
+    getLeafKeys(node, arr) {
+      // 如果当前 node 节点不包含children属性，则是三级节点
+      if (!node.children) {
+        return arr.push(node.id);
+      }
+
+      node.children.forEach(item => {
+        this.getLeafKeys(item, arr);
+      });
+    },
+    // 监听 分配权限 弹框关闭
+    authorityDialogClosed() {
+      // 清空数组
+      this.defKeys = [];
+    },
+    // 点击确定，设置权限
+    setAuthority() {
+      const keys = [
+        ...this.$refs.treeRef.getCheckedNodes(),
+        ...this.$refs.treeRef.getHalfCheckedNodes()
+      ];
+      const idStr = keys.join(",");
+      this.$http
+        .post(`roles/${this.roleid}/rights`, { rids: idStr })
+        .then(res => {
+          if (res.data.meta.status !== 200) {
+            return this.$message.error("分配权限失败");
           }
-          this.allAuthorityListL = res.data.data
-          console.log(res.data.data)
-      })
-      this.setAuthorityDialogVisible = true;
+          this.$message.success("分配权限成功");
+          // 成功之后刷新权限列表
+          this.getRolesList();
+          // 设置弹框关闭
+          this.setAuthorityDialogVisible = false;
+        });
     }
   }
 };
