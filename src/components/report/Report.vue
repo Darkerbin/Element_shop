@@ -20,7 +20,39 @@ import echarts from "echarts";
 
 export default {
   data() {
-    return {};
+    return {
+        //  需要合并的对象
+      options: {
+        title: {
+          text: "用户来源"
+        },
+        tooltip: {
+          trigger: "axis",
+          axisPointer: {
+            type: "cross",
+            label: {
+              backgroundColor: "#E9EEF3"
+            }
+          }
+        },
+        grid: {
+          left: "3%",
+          right: "4%",
+          bottom: "3%",
+          containLabel: true
+        },
+        xAxis: [
+          {
+            boundaryGap: false
+          }
+        ],
+        yAxis: [
+          {
+            type: "value"
+          }
+        ]
+      }
+    };
   },
   created() {},
 
@@ -32,8 +64,8 @@ export default {
     if (res.meta.status !== 200) {
       return this.$message.error("获取失败");
     }
-
-    myChart.setOption(res.data);
+    this.options =  Object.assign(this.options, res.data)
+    myChart.setOption(this.options);
   }
 };
 </script>
